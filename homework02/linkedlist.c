@@ -68,9 +68,12 @@ node_t *listnode_add(list_t *list, void *val)
 		}
 	}
 
-	new->next = NULL;
+	new->next = list->head;
+	if(list->head)
+		list->head->prev = new;
+	else
+		list->tail = new;
 	list->head = new;
-	list->tail = new;
 	list->count++;
 
 	return new;
