@@ -9,13 +9,13 @@ list_t *list_create(list_cmp_cb_t cmp, list_del_cb_t del)
 	if(new == NULL)
 		return NULL;
 
-	list->count = 0;
-	list->head = NULL;
-	list->tail = NULL;
-	list->cmp = cmp;
-	list->del = del;
+	new->count = 0;
+	new->head = NULL;
+	new->tail = NULL;
+	new->cmp = cmp;
+	new->del = del;
 
-	return list;
+	return new;
 }
 
 /* Free list */
@@ -51,7 +51,6 @@ node_t *listnode_add(list_t *list, void *val)
 
 	new->data = val;
 
-
 	for(n = list->tail; n; n = n->prev)
 	{
 		if((list->cmp(val, n->data)) >= 0)
@@ -70,10 +69,43 @@ node_t *listnode_add(list_t *list, void *val)
 	}
 
 	new->next = NULL;
-	new->prev = NULL
 	list->head = new;
 	list->tail = new;
 	list->count++;
 
 	return new;
 }
+
+void listnode_delete(list_t *list, void *val)
+{
+	node_t *node;
+	
+	if((!list) || (!node))
+		return;
+	
+	for(node = list->head; node; node = node->next)
+	{
+		if(node->data == val)
+		{
+			if(node->prev)
+				node->prev->next = node->next;
+			else
+				list->head = node->next;
+			
+			if(node->next)
+				node->next->prev = node->prev;
+			else
+				list->tail = node->prev;
+			
+			list->count--;
+			if(list->del)
+				list->del(node->data);
+		
+			listnode_free(node);
+			return;
+		}
+	}
+	
+	return;
+}
+
